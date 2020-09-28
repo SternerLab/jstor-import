@@ -388,7 +388,9 @@ class EmbeddingParser(object):
                                   )
         # Put the model in "evaluation" mode, meaning feed-forward operation.
         self.model.eval()
+        self.model.to('cuda')
 
+    ##change to single precision or half
     def word_to_vec(self, text, word_type):
         marked_text = "[CLS] " + text + " [SEP]"
 
@@ -397,8 +399,8 @@ class EmbeddingParser(object):
         indexed_tokens = self.tokenizer.convert_tokens_to_ids(tokenized_text)
 
         segments_ids = [1] * len(tokenized_text)
-        tokens_tensor = torch.tensor([indexed_tokens])
-        segments_tensors = torch.tensor([segments_ids])
+        tokens_tensor = torch.tensor([indexed_tokens]).to('cuda')
+        segments_tensors = torch.tensor([segments_ids]).to('cuda')
         #logger.debug("Sentence: {}".format(marked_text))
         #logger.debug("Length of tokens_tensor {} and segments_tensor {} ".format(
              #str(len(indexed_tokens)), str(len(segments_ids))))
@@ -423,7 +425,7 @@ class EmbeddingParser(object):
             if token_str == word_type.value:
                 target_index = i
                 break
-        return token_vecs_sum[target_index].numpy().tolist()
+        return token_vecs_sum[target_index].cpu().numpy().tolist()
 
     def parse(self, type, pages):
         result = []
